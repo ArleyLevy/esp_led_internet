@@ -17,7 +17,7 @@ led_status = {
 BROKER = os.environ.get('BROKER', 'default_broker_url')
 USERNAME = os.environ.get('USERNAME', 'default_username')
 PASSWORD = os.environ.get('PASSWORD', 'default_password')
-PORT = 8883
+PORT = os.environ.get('PORT', 'default_password')
 TOPIC_COMMAND = "home/esp32/leds"
 TOPIC_STATUS = "home/esp32/status"
 
@@ -33,6 +33,7 @@ def on_connect(client, userdata, flags, rc):
         client.subscribe(TOPIC_STATUS)
     else:
         print(f"Erro ao conectar: {rc}")
+    print(f"Conexão com o broker: Código de retorno {rc}")
 
 def on_message(client, userdata, msg):
     global led_status
