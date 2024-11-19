@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de LEDs</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+
+        .led-container {
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: gray;
+            display: inline-block;
+            margin: 20px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2), 0 0 20px rgba(0, 0, 0, 0.1) inset;
+            border: 3px solid #ddd;
+            transition: background-color 0.3s ease;
+        }
+
+        .circle[data-led-on="true"] {
+            background-color: red;
+            box-shadow: 0 0 20px red, 0 0 25px red inset;
+        }
+
+        .button-container {
+            margin-top: 20px;
+        }
+
+        .led-button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="led-container">
+        <h1>Controle de LEDs</h1>
+        <div id="led1" class="circle" data-led-on="false"></div>
+        <div id="led2" class="circle" data-led-on="false"></div>
+        <div id="led3" class="circle" data-led-on="false"></div>
+        <div id="led4" class="circle" data-led-on="false"></div>
+
+        <div class="button-container">
+            <button class="led-button" onclick="toggleLED('led1')">LED 1</button>
+            <button class="led-button" onclick="toggleLED('led2')">LED 2</button>
+            <button class="led-button" onclick="toggleLED('led3')">LED 3</button>
+            <button class="led-button" onclick="toggleLED('led4')">LED 4</button>
+        </div>
+    </div>
+
+    <script>
+        function atualizarLEDs() {
+            fetch('/led_status')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('led1').dataset.ledOn = data.led1;
+                    document.getElementById('led2').dataset.ledOn = data.led2;
+                    document.getElementById('led3').dataset.ledOn = data.led3;
+                    document.getElementById('led4').dataset.ledOn = data.led4;
+                })
+                .catch(error => console.error('Erro ao obter o estado dos LEDs:', error));
+        }
+
+        function toggleLED(led) {
+            const currentState = document.getElementById(led).dataset.ledOn === 'true';
+            const newState = !currentState;
+
+            fetch('/update_led', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ [led]: newState })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+            })
+            .catch(error => console.error('Erro ao atualizar o estado do LED:', error));
+        }
+
+        setInterval(atualizarLEDs, 1000);
+    </script>
+</body>
+</html>
